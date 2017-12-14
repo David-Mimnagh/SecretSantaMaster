@@ -24,7 +24,7 @@ namespace SecretSanta
                 string[] infoIndiv = line.Split(',');
                 if ( infoIndiv[0] != "id" )
                 {
-                    p.Add(new Participant { Id = Convert.ToInt32(infoIndiv[0]), Name = infoIndiv[1], SpouseId = Convert.ToInt32(infoIndiv[2]), EmailAddress = infoIndiv[3], Interests = infoIndiv[4] });
+                    p.Add(new Participant { Id = Convert.ToInt32(infoIndiv[0]), Name = infoIndiv[1], SpouseId = Convert.ToInt32(infoIndiv[2]), EmailAddress = infoIndiv[3], Interests = infoIndiv[4], PreviousSSantaId = Convert.ToInt32(infoIndiv[5]) });
                 }
             }
 
@@ -62,13 +62,16 @@ namespace SecretSanta
                     {
                         if ( person.SpouseId != possiblePair.Id )
                         {
-                            // add to pP
-                            var newAddition = new Dictionary<Participant, Participant>();
-                            newAddition.Add(person, possiblePair);
-                            pP.Add(newAddition);
-                            // remove from avail list
-                            addedList.Add(person.Id);
-                            availablelist.RemoveAt(r);
+                            if (person.PreviousSSantaId != possiblePair.Id)
+                            {
+                                // add to pP
+                                var newAddition = new Dictionary<Participant, Participant>();
+                                newAddition.Add(person, possiblePair);
+                                pP.Add(newAddition);
+                                // remove from avail list
+                                addedList.Add(person.Id);
+                                availablelist.RemoveAt(r);
+                            }
                         }
                     }
                 }
