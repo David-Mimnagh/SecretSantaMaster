@@ -117,14 +117,25 @@ namespace SecretSanta
             foreach ( var i in interestListAfter )
             {
                 string copyString = i.Replace('+', ' ');
-                interests += "<p><b><font size='3'>" + copyString + ":</font></b></p> " + baseAmazon + i;
-                interests += "<br/>";
+                interests += "<li style = \"padding-top: 5px\"><a href = \"" + (baseAmazon + i) + "\"target=\"_blank\"style = \"color: white; \">" + copyString + "</a></li>";
             }
 
 
             return interests;
         }
-
+        static string BuildEmailHTML(Participant p)
+        {
+            string[] info = File.ReadAllLines("../../Files/basehtml.txt");
+            string baseHTMLString = "";
+            foreach (var line in info)
+            {
+                baseHTMLString += line;
+            }
+            baseHTMLString = baseHTMLString.Replace("%%USERNAME%%", p.Name);
+            baseHTMLString += BuildInterests(p);
+            baseHTMLString += "<p style = \"padding-top: 30px\"> REMEMBER EVERYONE - <br/>There is a £20 limit. Don't go over, and try not to be under by too much!<br/>Merry Christmas!</p></ul></div></div></body></html>";
+            return baseHTMLString;
+        }
 
         static void SendOutEmails(List<Dictionary<Participant, Participant>> pP)
         {
@@ -133,7 +144,7 @@ namespace SecretSanta
                 foreach ( var p in pP[i] )
                 {
                     //MailMessage mail = new MailMessage("secret_santa@family.com", p.Key.EmailAddress);
-                    MailMessage mail = new MailMessage("secret_santa@family.com", "david.mimnagh@saveandinvest.co.uk");
+                   MailMessage mail = new MailMessage("secret_santa@family.com", "davidmimnagh1@googlemail.com");
                     SmtpClient client = new SmtpClient();
                     client.Port = 587;
                     client.Host = "smtp.gmail.com";
@@ -143,12 +154,11 @@ namespace SecretSanta
                     client.UseDefaultCredentials = false;
                     client.Credentials = new System.Net.NetworkCredential(SecretSanta.Properties.Settings.Default.UName, SecretSanta.Properties.Settings.Default.Pass);
 
-                    mail.Subject = p.Key.Name + " your secret santa has been selected!";
-                    mail.Body = "<html><body>Your secret santa is: <br/><p><b><font size='6'>"+p.Value.Name+".</font></b></p>";
-                    mail.Body += "<br/><br/> Here are some things that your Secret Santa may be interested in: <br/><br/>";
-                    mail.Body += BuildInterests(p.Value);
-                    mail.Body += "</body></html>";
+                    mail.Subject = p.Key.Name + ", your secret santa has been selected!";
+                    mail.Body = BuildEmailHTML(p.Value);
                     mail.IsBodyHtml = true;
+                    mail.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+
                     client.Send(mail);
                 }
             }
@@ -166,6 +176,7 @@ namespace SecretSanta
             SendOutEmails(partiPair);
 
             Console.WriteLine("Done sending email");
+            Console.ReadLine();
         }
     }
 }
