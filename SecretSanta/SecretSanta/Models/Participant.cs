@@ -14,5 +14,6 @@ namespace SecretSanta.Models
         public string EmailAddress { get; set; }
         public string Interests { get; set; }
         public int PreviousSSantaId { get; set; }
+        public string ShirtSize { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace SecretSanta
                 string[] infoIndiv = line.Split(',');
                 if ( infoIndiv[0] != "id" )
                 {
-                    p.Add(new Participant { Id = Convert.ToInt32(infoIndiv[0]), Name = infoIndiv[1], SpouseId = Convert.ToInt32(infoIndiv[2]), EmailAddress = infoIndiv[3], Interests = infoIndiv[4], PreviousSSantaId = Convert.ToInt32(infoIndiv[5]) });
+                    p.Add(new Participant { Id = Convert.ToInt32(infoIndiv[0]), Name = infoIndiv[1], SpouseId = Convert.ToInt32(infoIndiv[2]), EmailAddress = infoIndiv[3], Interests = infoIndiv[4], PreviousSSantaId = Convert.ToInt32(infoIndiv[5]), ShirtSize = infoIndiv[6] });
                 }
             }
 
@@ -120,7 +120,6 @@ namespace SecretSanta
                 interests += "<li style = \"padding-top: 5px\"><a href = \"" + (baseAmazon + i) + "\"target=\"_blank\"style = \"color: white; \">" + copyString + "</a></li>";
             }
 
-
             return interests;
         }
         static string BuildEmailHTML(Participant p)
@@ -131,9 +130,9 @@ namespace SecretSanta
             {
                 baseHTMLString += line;
             }
-            baseHTMLString = baseHTMLString.Replace("%%USERNAME%%", p.Name);
+            baseHTMLString = baseHTMLString.Replace("%%USERNAME%%", p.Name).Replace("%%TOPSIZE%%", p.ShirtSize); ;
             baseHTMLString += BuildInterests(p);
-            baseHTMLString += "<p style = \"padding-top: 30px\"> REMEMBER EVERYONE - <br/>There is a £20 limit. Don't go over, and try not to be under by too much!<br/>Merry Christmas!</p></ul></div></div></body></html>";
+            baseHTMLString += "<p style = \"padding-top: 30px\"> This year, there is a <b style='padding-top: 10px; font-size:32px;'>£25</b> limit. Don't go over, and try not to be under by too much!<br/><br/>Merry Christmas!</p></ul></div></div></body></html>";
             return baseHTMLString;
         }
 
@@ -143,8 +142,8 @@ namespace SecretSanta
             {
                 foreach ( var p in pP[i] )
                 {
-                    //MailMessage mail = new MailMessage("secret_santa@family.com", p.Key.EmailAddress);
-                   MailMessage mail = new MailMessage("secret_santa@family.com", "davidmimnagh1@googlemail.com");
+                    MailMessage mail = new MailMessage("secret_santa@family.com", p.Key.EmailAddress);
+                   //MailMessage mail = new MailMessage("secret_santa@family.com", "davidmimnagh1@googlemail.com");
                     SmtpClient client = new SmtpClient();
                     client.Port = 587;
                     client.Host = "smtp.gmail.com";
@@ -152,10 +151,10 @@ namespace SecretSanta
                     client.Timeout = 10000;
                     client.DeliveryMethod = SmtpDeliveryMethod.Network;
                     client.UseDefaultCredentials = false;
-                    client.Credentials = new System.Net.NetworkCredential(SecretSanta.Properties.Settings.Default.UName, SecretSanta.Properties.Settings.Default.Pass);
+                    client.Credentials = new System.Net.NetworkCredential(Properties.Settings.Default.UName, Properties.Settings.Default.Pass);
 
                     mail.Subject = p.Key.Name + ", your secret santa has been selected!";
-                    mail.Body = BuildEmailHTML(p.Value);
+                    mail.Body = BuildEmailHTML(p.Value).Replace("%%USER%%", p.Key.Name);
                     mail.IsBodyHtml = true;
                     mail.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
 
@@ -166,16 +165,37 @@ namespace SecretSanta
 
 
         }
+        static void CreateNewCSV(List<Dictionary<Participant, Participant>> participantsPair)
+        {
+            string csv = File.ReadAllText("../../Files/basecsv.txt");
+            for (int i = 0; i < participantsPair.Count; i++)
+            {
+                foreach (var pair in participantsPair[i])
+                {
+                    var participant = pair.Key;
+                    var match = pair.Value;
+                    csv += $"{participant.Id.ToString()},{participant.Name},{participant.SpouseId.ToString()},{participant.EmailAddress},{participant.Interests},{match.Id.ToString()},{participant.ShirtSize}{Environment.NewLine}";
+                }
+            }
+            
+            File.WriteAllText("../../Files/participantList_NEW.csv",csv);
+        }
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Getting Participants...");
             List<Participant> participants = GetAllParticipants();
-
+            Console.WriteLine("Getting Pairs...");
             List<Dictionary<Participant, Participant>> partiPair = GetSecretSantas(participants);
 
+            Console.WriteLine("Sending emails...");
             SendOutEmails(partiPair);
+            Console.WriteLine("Finished sending emails");
 
-            Console.WriteLine("Done sending email");
+            Console.WriteLine("Creating new CSV file...");
+            CreateNewCSV(partiPair);
+
+            Console.WriteLine("Secret Santa has completed...");
             Console.ReadLine();
         }
     }

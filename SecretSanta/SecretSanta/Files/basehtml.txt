@@ -43,7 +43,12 @@ a:visited {
 </style>
 </head>
 <body>
-
+<div class="interests">
+   <div class = "center" style="padding-top: 10px; font-size:32px;">Hi, %%USER%%</div>
+	<div class = "center" style ="font-size: 24px">
+      As you know, this year is a bit different.<br/>So, to make sure we can all see each other we will be holding a group facetime call at <b><u>11 AM</u></b> on <b><u>Christmas day</u></b>, make sure you don't open your presents beforehand!<br/><p>Now onto business...</p>
+	</div>
+  </div>
 <div class="intro" style="padding-top: 10px; height: 150px">
   <div class = "center">
    <div style="padding-top: 10px; font-size:16px;"> YOUR SECRET SANTA IS:</div>
@@ -51,8 +56,11 @@ a:visited {
   </div>
 </div>
 <div class="interests">
+	<br/><div class = 'center' style ='font-size: 24px'>
+	  If you're planning to get a T-Shirt or something like that for your Secret Santa, then their top size is: %%TOPSIZE%%
+	</div>
 	<div class = "center" style ="font-size: 24px">
-		Here are some things that your Secret Santa may be interested in:
+		However, if you're struggling to think of what to get %%USERNAME%%, then here are some things that they may be interested in:
 	</div>
     <div class = "center" style ="font-size: 24px">
-    	<ul>
+      <ul>
